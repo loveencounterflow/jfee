@@ -22,18 +22,6 @@ types                     = new ( require 'intertype' ).Intertype()
 { freeze, }               = Object
 
 
-### thx to https://stackoverflow.com/a/59347615/7568091
-
-Seems to be working so far.
-
-i.e. you create a dummy promise like in Khanh's solution so that you can wait for the first result, but then
-because many results might come in all at once, you push them into an array and reset the promise to wait
-for the result (or batch of results). It doesn't matter if this promise gets overwritten dozens of times
-before its ever awaited.
-
-Then we can yield all the results at once with yield* and flush the array for the next batch.
-
-###
 
 
 #===========================================================================================================
