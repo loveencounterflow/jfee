@@ -27,7 +27,7 @@ types                     = new ( require 'intertype' ).Intertype()
 #===========================================================================================================
 #
 #-----------------------------------------------------------------------------------------------------------
-class Receiver # extends Object
+class @Receiver # extends Object
   constructor: ->
     @collector            = []
     @[ Symbol.iterator ]  = -> yield from @collector; @collector = []
