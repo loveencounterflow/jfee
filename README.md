@@ -51,3 +51,6 @@ thx to https://stackoverflow.com/a/59347615/7568091
 
 ## To Do
 
+* [ ] integrate with `intertext-splitlines`
+
+
