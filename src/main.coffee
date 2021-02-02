@@ -93,6 +93,7 @@ class @Receiver # extends Object
 
   #---------------------------------------------------------------------------------------------------------
   @from_child_process: ( cp, settings ) ->
+    validate.childprocess cp
     rcv = new Receiver settings
     rcv.add_initializer   '<cp' unless rcv.settings.bare
     rcv.add_data_channel cp.stdout, 'data', '^stdout'
