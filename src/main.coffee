@@ -18,6 +18,7 @@ PATH                      = require 'path'
 FS                        = require 'fs'
 types                     = new ( require 'intertype' ).Intertype()
 { isa
+  type_of
   validate }              = types.export()
 { freeze, }               = Object
 
@@ -96,20 +97,20 @@ class @Receiver # extends Object
     validate.childprocess cp
     rcv = new Receiver settings
     rcv.add_initializer   '<cp' unless rcv.settings.bare
-    rcv.add_data_channel cp.stdout, 'data', '^stdout'
-    rcv.add_data_channel cp.stderr, 'data', '^stderr'
-    rcv.add_terminator cp, 'close', '>cp' unless rcv.settings.bare
+    rcv.add_data_channel  cp.stdout, 'data', '^stdout'
+    rcv.add_data_channel  cp.stderr, 'data', '^stderr'
+    rcv.add_terminator    cp, 'close', if rcv.settings.bare then null else '>cp'
     while not rcv.done
       await rcv.ratchet; yield from rcv
     return null
 
   #---------------------------------------------------------------------------------------------------------
-  ### TAINT include option to just send buffers ###
   @from_readstream: ( stream, settings ) ->
+    validate.readstream stream
     rcv = new Receiver settings
     rcv.add_initializer  '<stream' unless rcv.settings.bare
-    rcv.add_data_channel  stream, 'data', if rcv.settings.raw then null else '^line'
-    rcv.add_terminator    stream, 'close',  '>stream' unless rcv.settings.bare
+    rcv.add_data_channel  stream, 'data',   if rcv.settings.raw  then null else '^line'
+    rcv.add_terminator    stream, 'close',  if rcv.settings.bare then null else '>stream'
     while not rcv.done
       await rcv.ratchet; yield from rcv
     return null
