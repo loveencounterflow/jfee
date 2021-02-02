@@ -24,7 +24,7 @@ types                     = new ( require 'intertype' ).Intertype()
 #-----------------------------------------------------------------------------------------------------------
 defaults =
   bare: false
-  raw:  false
+  raw:  true
 
 #-----------------------------------------------------------------------------------------------------------
 types.declare "jfee_settings", tests:
@@ -93,7 +93,6 @@ class @Receiver # extends Object
 
   #---------------------------------------------------------------------------------------------------------
   @from_child_process: ( cp, settings ) ->
-    ### TAINT validate settings ###
     rcv = new Receiver settings
     rcv.add_initializer   '<cp' unless rcv.settings.bare
     rcv.add_data_channel cp.stdout, 'data', '^stdout'
@@ -106,9 +105,6 @@ class @Receiver # extends Object
   #---------------------------------------------------------------------------------------------------------
   ### TAINT include option to just send buffers ###
   @from_readstream: ( stream, settings ) ->
-    defaults  = { raw: true, }
-    settings  = { defaults..., settings..., }
-    ### TAINT validate settings ###
     rcv = new Receiver settings
     rcv.add_initializer  '<stream' unless rcv.settings.bare
     rcv.add_data_channel  stream, 'data', if rcv.settings.raw then null else '^line'
