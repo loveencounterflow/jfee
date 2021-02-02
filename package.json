@@ -1,6 +1,6 @@
 {
   "name": "jfee",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "turn NodeJS EventEmitters into asynchronous generators that one can iterate over with for-loops",
   "main": "lib/main.js",
   "directories": {
