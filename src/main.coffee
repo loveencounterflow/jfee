@@ -21,14 +21,25 @@ types                     = new ( require 'intertype' ).Intertype()
   validate }              = types.export()
 { freeze, }               = Object
 
+#-----------------------------------------------------------------------------------------------------------
+defaults =
+  bare: false
+  raw:  false
 
+#-----------------------------------------------------------------------------------------------------------
+types.declare "jfee_settings", tests:
+  "x is an object":           ( x ) -> @isa.object x
+  "x.bare is a boolean":      ( x ) -> @isa.boolean x.bare
+  "x.raw is a boolean":       ( x ) -> @isa.boolean x.raw
 
 
 #===========================================================================================================
 #
 #-----------------------------------------------------------------------------------------------------------
 class @Receiver # extends Object
-  constructor: ->
+  constructor: ( settings ) ->
+    @settings             = freeze { defaults..., settings..., }
+    validate.jfee_settings @settings
     @collector            = []
     @[ Symbol.iterator ]  = -> yield from @collector; @collector = []
     @_resolve             = ->
@@ -83,11 +94,11 @@ class @Receiver # extends Object
   #---------------------------------------------------------------------------------------------------------
   @from_child_process: ( cp, settings ) ->
     ### TAINT validate settings ###
-    rcv = new Receiver()
-    rcv.add_initializer   '<cp'
+    rcv = new Receiver settings
+    rcv.add_initializer   '<cp' unless rcv.settings.bare
     rcv.add_data_channel cp.stdout, 'data', '^stdout'
     rcv.add_data_channel cp.stderr, 'data', '^stderr'
-    rcv.add_terminator cp, 'close', '>cp'
+    rcv.add_terminator cp, 'close', '>cp' unless rcv.settings.bare
     while not rcv.done
       await rcv.ratchet; yield from rcv
     return null
@@ -98,10 +109,10 @@ class @Receiver # extends Object
     defaults  = { raw: true, }
     settings  = { defaults..., settings..., }
     ### TAINT validate settings ###
-    rcv = new Receiver()
-    rcv.add_initializer  '<stream'
-    rcv.add_data_channel  stream, 'data', if settings.raw then null else '^line'
-    rcv.add_terminator    stream, 'close',  '>stream'
+    rcv = new Receiver settings
+    rcv.add_initializer  '<stream' unless rcv.settings.bare
+    rcv.add_data_channel  stream, 'data', if rcv.settings.raw then null else '^line'
+    rcv.add_terminator    stream, 'close',  '>stream' unless rcv.settings.bare
     while not rcv.done
       await rcv.ratchet; yield from rcv
     return null
