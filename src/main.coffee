@@ -106,7 +106,7 @@ class @Receiver # extends Object
 
   #---------------------------------------------------------------------------------------------------------
   @from_readstream: ( stream, settings ) ->
-    validate.readstream stream
+    # validate.readstream stream
     rcv = new Receiver settings
     rcv.add_initializer  '<stream' unless rcv.settings.bare
     rcv.add_data_channel  stream, 'data',   if rcv.settings.raw  then null else '^line'
